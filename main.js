@@ -78,7 +78,7 @@ function tick() {
             handleStep(playerPos, [playerPos[0], playerPos[1] - 1]);
     }
 
-    if (gameTick % 2 === 0) {
+    if (gameTick % 1 === 0) {
         moveSnakes();
     }
 
@@ -87,6 +87,7 @@ function tick() {
     gameTick++;
     if (gameState === 1) tickTimer = setTimeout(tick, 33);
     if (gameState === 2) {
+        drawBoard();
         document.getElementById("game-over-text").innerHTML =
             "GAME OVER  Tokens Collected: " + tokensCollected;
     }
@@ -227,43 +228,37 @@ function handleStep(currentPos, stepPos) {
 }
 
 function moveSnakes() {
-    for (let snakeIndex = 0; snakeIndex < snakePos.length; snakeIndex++) {
-        let snakeIndex = Math.floor(Math.random() * snakePos.length);
-        let headPos = snakePos[snakeIndex][snakePos[snakeIndex].length - 1];
-        let playerDir = [false, false, false, false];
-        if (playerPos[0] < headPos[0]) playerDir[0] = true;
-        if (playerPos[1] > headPos[1]) playerDir[1] = true;
-        if (playerPos[0] > headPos[0]) playerDir[2] = true;
-        if (playerPos[1] < headPos[1]) playerDir[3] = true;
+    //for (let snakeIndex = 0; snakeIndex < snakePos.length; snakeIndex++) {
+    let snakeIndex = Math.floor(Math.random() * snakePos.length);
+    let headPos = snakePos[snakeIndex][snakePos[snakeIndex].length - 1];
+    let playerDir = [false, false, false, false];
+    if (playerPos[0] < headPos[0]) playerDir[0] = true;
+    if (playerPos[1] > headPos[1]) playerDir[1] = true;
+    if (playerPos[0] > headPos[0]) playerDir[2] = true;
+    if (playerPos[1] < headPos[1]) playerDir[3] = true;
 
-        let validPlayerDirs = [];
+    let validPlayerDirs = [];
 
-        if (getValidPos(charPosNearby(headPos, playerChar)).length > 0) {
-            gameState = 2;
+    if (getValidPos(charPosNearby(headPos, playerChar)).length > 0) {
+        gameState = 2;
+    } else {
+        let blankCharPosNearby = charPosNearby(headPos, blankChar);
+        for (let i = 0; i < playerDir.length; i++) {
+            if (playerDir[i])
+                if (blankCharPosNearby[i] !== null)
+                    validPlayerDirs.push(blankCharPosNearby[i]);
+        }
+
+        if (validPlayerDirs.length > 0) {
+            shiftSnake(snakePos[snakeIndex], getRandomElement(validPlayerDirs));
         } else {
-            let blankCharPosNearby = charPosNearby(headPos, blankChar);
-            for (let i = 0; i < playerDir.length; i++) {
-                if (playerDir[i])
-                    if (blankCharPosNearby[i] !== null)
-                        validPlayerDirs.push(blankCharPosNearby[i]);
-            }
-
-            if (validPlayerDirs.length > 0) {
-                shiftSnake(
-                    snakePos[snakeIndex],
-                    getRandomElement(validPlayerDirs)
-                );
-            } else {
-                let validDirs = getValidPos(charPosNearby(headPos, blankChar));
-                if (validDirs.length > 0)
-                    shiftSnake(
-                        snakePos[snakeIndex],
-                        getRandomElement(validDirs)
-                    );
-            }
+            let validDirs = getValidPos(charPosNearby(headPos, blankChar));
+            if (validDirs.length > 0)
+                shiftSnake(snakePos[snakeIndex], getRandomElement(validDirs));
         }
     }
     updateBoard();
+    //}
 
     function shiftSnake(snake, pos) {
         snake.push([pos[0], pos[1]]);
