@@ -1,0 +1,12 @@
+body {
+    font-family: monospace;
+}
+
+#canvas {
+    margin-bottom: 10px;
+    display: block;
+}
+
+#gameover-text {
+    margin-top: 10px;
+}
