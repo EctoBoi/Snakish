@@ -1,5 +1,17 @@
 body {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
     font-family: monospace;
+    background-color: #c2cfd3;
+}
+
+#buttons {
+    display: flex;
+    flex-direction: row;
+}
+#buttons button {
+    margin-right: 10px;
 }
 
 #canvas {
@@ -7,6 +19,16 @@ body {
     display: block;
 }
 
-#gameover-text {
+#game-over-text {
     margin-top: 10px;
+    margin-bottom: 0px;
+    text-align: center;
+}
+
+#match-history {
+    margin-top: 10px;
+}
+
+#auto-reset-icon {
+    font-size: 14px;
 }
