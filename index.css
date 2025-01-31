@@ -10,3 +10,11 @@ body {
 #gameover-text {
     margin-top: 10px;
 }
+
+#match-history {
+    margin-top: 10px;
+}
+
+#auto-reset-icon {
+    font-size: 14px;
+}

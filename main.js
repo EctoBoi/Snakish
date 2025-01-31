@@ -27,6 +27,7 @@ const tokenChar = "#";
 const blankChar = " ";
 const wallChar = "█";
 
+let autoReset = false;
 let gameState = 0;
 let gameTick = 0;
 let rowSize = defaults.rowSize;
@@ -38,6 +39,8 @@ let playerPos = defaults.playerPos;
 let snakePos = JSON.parse(defaults.snakePos);
 let tokenPos = [];
 let tokensCollected = 0;
+let spawnedSnakes = 2;
+let matchNum = 1;
 
 let tickTimer = null;
 let board = [];
@@ -55,7 +58,19 @@ function reset() {
     playerPos = defaults.playerPos;
     snakePos = JSON.parse(defaults.snakePos);
     tokenPos = [];
+
+    document.getElementById("match-history").innerHTML =
+        "[" +
+        matchNum +
+        "] 👑: " +
+        tokensCollected +
+        " 🐉: " +
+        spawnedSnakes +
+        "<br>" +
+        document.getElementById("match-history").innerHTML;
     tokensCollected = 0;
+    spawnedSnakes = 2;
+    matchNum++;
 
     document.getElementById("game-over-text").innerHTML = "";
 
@@ -89,7 +104,17 @@ function tick() {
     if (gameState === 2) {
         drawBoard();
         document.getElementById("game-over-text").innerHTML =
-            "GAME OVER  Tokens Collected: " + tokensCollected;
+            "⚰️GAME OVER⚰️<br>Crowns👑: " +
+            tokensCollected +
+            "<br>Dragons🐉: " +
+            spawnedSnakes;
+        if (autoReset) {
+            document.getElementById("auto-reset-icon").innerHTML = "🔄";
+            setTimeout(() => {
+                document.getElementById("auto-reset-icon").innerHTML = "";
+                document.getElementById("reset").click();
+            }, 2000);
+        }
     }
 }
 
@@ -185,16 +210,17 @@ function drawBoard() {
 
 //controls
 document.addEventListener("keydown", function (event) {
-    if (event.key === "ArrowUp") heldDir[0] = true;
-    if (event.key === "ArrowRight") heldDir[1] = true;
-    if (event.key === "ArrowDown") heldDir[2] = true;
-    if (event.key === "ArrowLeft") heldDir[3] = true;
+    if (event.key === "w") heldDir[0] = true;
+    if (event.key === "d") heldDir[1] = true;
+    if (event.key === "s") heldDir[2] = true;
+    if (event.key === "a") heldDir[3] = true;
+    if (event.key === "r") document.getElementById("reset").click();
 });
 document.addEventListener("keyup", function (event) {
-    if (event.key === "ArrowUp") heldDir[0] = false;
-    if (event.key === "ArrowRight") heldDir[1] = false;
-    if (event.key === "ArrowDown") heldDir[2] = false;
-    if (event.key === "ArrowLeft") heldDir[3] = false;
+    if (event.key === "w") heldDir[0] = false;
+    if (event.key === "d") heldDir[1] = false;
+    if (event.key === "s") heldDir[2] = false;
+    if (event.key === "a") heldDir[3] = false;
 });
 
 document.getElementById("start").addEventListener("click", function (event) {
@@ -209,6 +235,17 @@ document.getElementById("stop").addEventListener("click", function (event) {
 document.getElementById("reset").addEventListener("click", function (event) {
     reset();
 });
+document
+    .getElementById("auto-reset")
+    .addEventListener("click", function (event) {
+        if (autoReset) {
+            document.getElementById("auto-reset").innerHTML = "Auto Reset: OFF";
+            autoReset = false;
+        } else {
+            document.getElementById("auto-reset").innerHTML = "Auto Reset: ON";
+            autoReset = true;
+        }
+    });
 
 function handleStep(currentPos, stepPos) {
     if (board[stepPos[0]][stepPos[1]] === blankChar) {
@@ -238,7 +275,7 @@ function moveSnakes() {
     if (playerPos[0] > headPos[0]) playerDir[2] = true;
     if (playerPos[1] < headPos[1]) playerDir[3] = true;
 
-    let validPlayerDirs = [];
+    let validPlayerDirPos = [];
 
     if (removeNulls(charPosNearby(headPos, playerChar)).length > 0) {
         gameState = 2; //near player end game
@@ -247,27 +284,27 @@ function moveSnakes() {
         for (let i = 0; i < playerDir.length; i++) {
             if (playerDir[i])
                 if (blankCharPosNearby[i] !== null)
-                    validPlayerDirs.push(blankCharPosNearby[i]);
+                    validPlayerDirPos.push(blankCharPosNearby[i]);
         }
 
-        if (validPlayerDirs.length > 0) {
+        if (validPlayerDirPos.length > 0) {
             //move to blank towards player
-            shiftSnake(currentSnake, getRandomElement(validPlayerDirs));
+            shiftSnake(currentSnake, getRandomElement(validPlayerDirPos));
         } else {
-            let validBlankDirs = removeNulls(charPosNearby(headPos, blankChar));
-            let validSnakeDirs = removeNulls(
+            let validBlankPos = removeNulls(charPosNearby(headPos, blankChar));
+            let validSnakePos = removeNulls(
                 charPosNearby(headPos, snakeTailChar)
                     .filter((pos) => !currentSnake.includes(pos))
                     .concat(charPosNearby(headPos, snakeHeadChar))
             );
 
-            if (validSnakeDirs.length > 0 && Math.random() < 0.5) {
-                let bitePos = getRandomElement(validSnakeDirs);
+            if (validSnakePos.length > 0 && Math.random() < 0.5) {
+                let bitePos = getRandomElement(validSnakePos);
                 biteSnake(snakeIndex, bitePos);
                 shiftSnake(currentSnake, bitePos);
-            } else if (validBlankDirs.length > 0)
+            } else if (validBlankPos.length > 0)
                 //move to any blank
-                shiftSnake(currentSnake, getRandomElement(validBlankDirs));
+                shiftSnake(currentSnake, getRandomElement(validBlankPos));
         }
     }
     updateBoard();
@@ -276,16 +313,48 @@ function moveSnakes() {
     function biteSnake(bitingSnakeIndex, pos) {
         for (let snakeIndex = 0; snakeIndex < snakePos.length; snakeIndex++) {
             if (snakeIndex !== bitingSnakeIndex) {
-                for (
-                    let snakePart = 0;
-                    snakePart < snakePos[snakeIndex].length;
-                    snakePart++
-                ) {
+                let snakeLength = snakePos[snakeIndex].length;
+                for (let snakePart = 0; snakePart < snakeLength; snakePart++) {
                     if (
                         snakePos[snakeIndex][snakePart][0] === pos[0] &&
                         snakePos[snakeIndex][snakePart][1] === pos[1]
-                    )
-                        console.log(snakeIndex);
+                    ) {
+                        if (snakePart === snakeLength - 1) {
+                            //kill snake if head
+                            snakePos.splice(snakeIndex, 1);
+                        } else {
+                            let newSnake = snakePos[snakeIndex].splice(
+                                0,
+                                snakePart
+                            );
+                            snakePos[snakeIndex].splice(0, 1);
+
+                            if (snakePos[snakeIndex].length < 2) {
+                                //original snake too short, kill
+                                snakePos.splice(snakeIndex, 1);
+                            }
+                            if (newSnake.length > 1) {
+                                // new snake
+                                snakePos.push(newSnake.reverse());
+                                spawnedSnakes++;
+                            }
+                        }
+                        if (snakePos.length < 2) {
+                            //always at least 2 snakes
+                            let defaultSnakes = JSON.parse(defaults.snakePos);
+                            snakePos.push(
+                                defaultSnakes[
+                                    Math.floor(
+                                        Math.random() * defaultSnakes.length
+                                    )
+                                ]
+                            );
+                            spawnedSnakes++;
+                        }
+
+                        snakePart = 999;
+                        snakeIndex = 999;
+                    }
                 }
             }
         }
@@ -309,12 +378,14 @@ function spawnToken() {
 }
 
 function elongateSnakes() {
-    for (let snakeIndex = 0; snakeIndex < snakePos.length; snakeIndex++) {
-        let tailPos = snakePos[snakeIndex][0];
-        let validDirs = removeNulls(charPosNearby(tailPos, blankChar));
+    for (let loops = 0; loops < 2; loops++) {
+        for (let snakeIndex = 0; snakeIndex < snakePos.length; snakeIndex++) {
+            let tailPos = snakePos[snakeIndex][0];
+            let validDirs = removeNulls(charPosNearby(tailPos, blankChar));
 
-        if (validDirs.length > 0)
-            snakePos[snakeIndex].unshift(getRandomElement(validDirs));
+            if (validDirs.length > 0)
+                snakePos[snakeIndex].unshift(getRandomElement(validDirs));
+        }
     }
     updateBoard();
 }
