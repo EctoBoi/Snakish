@@ -37,6 +37,8 @@ let heldDir = [false, false, false, false];
 
 let playerPos = defaults.playerPos;
 let snakePos = JSON.parse(defaults.snakePos);
+let recentBites = [];
+let recentDeaths = [];
 let tokenPos = [];
 let tokensCollected = 0;
 let spawnedSnakes = 2;
@@ -57,6 +59,8 @@ function reset() {
 
     playerPos = defaults.playerPos;
     snakePos = JSON.parse(defaults.snakePos);
+    recentBites = [];
+    recentDeaths = [];
     tokenPos = [];
 
     document.getElementById("match-history").innerHTML =
@@ -102,6 +106,7 @@ function tick() {
     gameTick++;
     if (gameState === 1) tickTimer = setTimeout(tick, 33);
     if (gameState === 2) {
+        addRecentDeath(playerPos);
         drawBoard();
         document.getElementById("game-over-text").innerHTML =
             "⚰️GAME OVER⚰️<br>Crowns👑: " +
@@ -184,8 +189,8 @@ function drawBoard() {
 
     for (let y = 0; y < colSize; y++) {
         for (let x = 0; x < rowSize; x++) {
-            if (board[y][x] === blankChar && (x + y) % 2 === 0) {
-                ctx.fillStyle = "#f1f1f1";
+            if (board[y][x] === wallChar || (x + y) % 2 === 0) {
+                ctx.fillStyle = "#e7eff1";
                 ctx.fillRect(tileX, tileY, tileSize, tileSize);
             }
 
@@ -199,12 +204,34 @@ function drawBoard() {
             ctx.fillText(
                 txt,
                 tileX + tileSize / 2 - ctx.measureText(txt).width / 2,
-                tileY + tileSize / 2 + 7
+                tileY + tileSize / 1.25
             );
             tileX += tileSize;
         }
         tileX = 0;
         tileY += tileSize;
+    }
+
+    //bites
+    ctx.font = "27px Arial";
+    txt = "💥";
+    for (let bite = 0; bite < recentBites.length; bite++) {
+        ctx.fillText(
+            txt,
+            recentBites[bite][1] * tileSize +
+                (tileSize / 2 - ctx.measureText(txt).width / 2),
+            recentBites[bite][0] * tileSize + tileSize / 1.15
+        );
+    }
+    //deaths
+    txt = "⚰️";
+    for (let death = 0; death < recentDeaths.length; death++) {
+        ctx.fillText(
+            txt,
+            recentDeaths[death][1] * tileSize +
+                (tileSize / 2 - ctx.measureText(txt).width / 2),
+            recentDeaths[death][0] * tileSize + tileSize / 1.15
+        );
     }
 }
 
@@ -215,6 +242,7 @@ document.addEventListener("keydown", function (event) {
     if (event.key === "s") heldDir[2] = true;
     if (event.key === "a") heldDir[3] = true;
     if (event.key === "r") document.getElementById("reset").click();
+    if (event.key === "Escape") document.getElementById("start-stop").click();
 });
 document.addEventListener("keyup", function (event) {
     if (event.key === "w") heldDir[0] = false;
@@ -313,24 +341,26 @@ function moveSnakes() {
     function biteSnake(bitingSnakeIndex, pos) {
         for (let snakeIndex = 0; snakeIndex < snakePos.length; snakeIndex++) {
             if (snakeIndex !== bitingSnakeIndex) {
-                let snakeLength = snakePos[snakeIndex].length;
+                let currentSnake = snakePos[snakeIndex];
+                let snakeLength = currentSnake.length;
                 for (let snakePart = 0; snakePart < snakeLength; snakePart++) {
                     if (
-                        snakePos[snakeIndex][snakePart][0] === pos[0] &&
-                        snakePos[snakeIndex][snakePart][1] === pos[1]
+                        currentSnake[snakePart][0] === pos[0] &&
+                        currentSnake[snakePart][1] === pos[1]
                     ) {
                         if (snakePart === snakeLength - 1) {
                             //kill snake if head
+                            addRecentDeath(currentSnake[snakePart]);
                             snakePos.splice(snakeIndex, 1);
                         } else {
-                            let newSnake = snakePos[snakeIndex].splice(
-                                0,
-                                snakePart
-                            );
-                            snakePos[snakeIndex].splice(0, 1);
+                            let newSnake = currentSnake.splice(0, snakePart);
+                            currentSnake.splice(0, 1);
 
-                            if (snakePos[snakeIndex].length < 2) {
+                            if (currentSnake.length < 2) {
                                 //original snake too short, kill
+                                addRecentDeath(
+                                    currentSnake[currentSnake.length - 1]
+                                );
                                 snakePos.splice(snakeIndex, 1);
                             }
                             if (newSnake.length > 1) {
@@ -351,6 +381,10 @@ function moveSnakes() {
                             );
                             spawnedSnakes++;
                         }
+                        recentBites.push(pos);
+                        setTimeout(() => {
+                            recentBites.splice(0, 1);
+                        }, 600);
 
                         snakePart = 999;
                         snakeIndex = 999;
@@ -364,6 +398,13 @@ function moveSnakes() {
         snake.push([pos[0], pos[1]]);
         snake.splice(0, 1);
     }
+}
+
+function addRecentDeath(pos) {
+    recentDeaths.push(pos);
+    setTimeout(() => {
+        recentDeaths.splice(0, 1);
+    }, 600);
 }
 
 function spawnToken() {
