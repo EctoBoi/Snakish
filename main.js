@@ -61,7 +61,6 @@ function reset() {
     colSize = defaults.colSize;
 
     playerPos = defaults.playerPos;
-    snakes = JSON.parse(defaults.snakePos);
     recentBites = [];
     recentDeaths = [];
     tokenPos = [];
@@ -91,6 +90,7 @@ function reset() {
             "<br>";
     });
 
+    snakes = JSON.parse(defaults.snakePos);
     tokensCollected = 0;
     spawnedSnakes = 2;
     mostSnakesAtOnce = 0;
