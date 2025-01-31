@@ -1,15 +1,15 @@
 const defaults = {};
 defaults.rowSize = 30;
 defaults.colSize = 24;
-defaults.playerPos = [2, 3];
+defaults.playerPos = [3, 3];
 defaults.snakePos = JSON.stringify([
     [
-        [defaults.colSize - 3, defaults.rowSize - 4],
-        [defaults.colSize - 3, defaults.rowSize - 5],
+        [defaults.colSize - 4, defaults.rowSize - 4],
+        [defaults.colSize - 4, defaults.rowSize - 5],
     ],
     [
-        [2, defaults.rowSize - 4],
-        [2, defaults.rowSize - 5],
+        [3, defaults.rowSize - 4],
+        [3, defaults.rowSize - 5],
     ],
 ]);
 
