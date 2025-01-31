@@ -19,7 +19,7 @@ body {
     display: block;
 }
 
-#game-over-text {
+#score-board {
     margin-top: 10px;
     margin-bottom: 0px;
     text-align: center;
