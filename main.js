@@ -77,7 +77,7 @@ function reset() {
     updateBoard();
     drawBoard();
 
-    document.getElementById("start").click();
+    document.getElementById("start-stop").click();
 }
 
 function tick() {
@@ -223,15 +223,15 @@ document.addEventListener("keyup", function (event) {
     if (event.key === "a") heldDir[3] = false;
 });
 
-document.getElementById("start").addEventListener("click", function (event) {
-    if (gameState === 0) {
-        gameState = 1;
-        tick();
-    }
-});
-document.getElementById("stop").addEventListener("click", function (event) {
-    if (gameState === 1) gameState = 0;
-});
+document
+    .getElementById("start-stop")
+    .addEventListener("click", function (event) {
+        if (gameState === 0) {
+            gameState = 1;
+            tick();
+        } else if (gameState === 1) gameState = 0;
+    });
+
 document.getElementById("reset").addEventListener("click", function (event) {
     reset();
 });
