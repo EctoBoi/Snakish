@@ -129,7 +129,7 @@ function tick() {
     if (snakes.length > mostSnakesAtOnce) mostSnakesAtOnce = snakes.length;
 
     gameTick++;
-    if (gameState === 1) tickTimer = setTimeout(tick, 33);
+    if (gameState === 1) tickTimer = setTimeout(tick, 50);
     if (gameState === 2) {
         addRecentDeath(playerPos);
         drawBoard();
