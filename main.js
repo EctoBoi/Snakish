@@ -43,6 +43,7 @@ let tokenPos = [];
 let tokensCollected = 0;
 let spawnedSnakes = 2;
 let matchNum = 1;
+let matchHistory = [];
 
 let tickTimer = null;
 let board = [];
@@ -63,15 +64,15 @@ function reset() {
     recentDeaths = [];
     tokenPos = [];
 
-    document.getElementById("match-history").innerHTML =
-        "[" +
-        matchNum +
-        "] 👑: " +
-        tokensCollected +
-        " 🐉: " +
-        spawnedSnakes +
-        "<br>" +
-        document.getElementById("match-history").innerHTML;
+    matchHistory.push([matchNum, tokensCollected, spawnedSnakes]);
+    matchHistory.sort((a, b) => b[1] - a[1]);
+
+    document.getElementById("match-history").innerHTML = "";
+    matchHistory.forEach((match) => {
+        document.getElementById("match-history").innerHTML +=
+            "[" + match[0] + "] 👑: " + match[1] + " 🐉: " + match[2] + "<br>";
+    });
+
     tokensCollected = 0;
     spawnedSnakes = 2;
     matchNum++;
