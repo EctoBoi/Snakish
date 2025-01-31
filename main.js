@@ -166,7 +166,7 @@ function drawBoard() {
 
             let txt = "";
             if (board[y][x] === wallChar) txt = "🔲";
-            if (board[y][x] === playerChar) txt = "😂";
+            if (board[y][x] === playerChar) txt = "🤴";
             if (board[y][x] === snakeHeadChar) txt = "🐉";
             if (board[y][x] === snakeTailChar) txt = "🔥";
             if (board[y][x] === tokenChar) txt = "👑";
@@ -229,8 +229,9 @@ function handleStep(currentPos, stepPos) {
 
 function moveSnakes() {
     //for (let snakeIndex = 0; snakeIndex < snakePos.length; snakeIndex++) {
-    let snakeIndex = Math.floor(Math.random() * snakePos.length);
-    let headPos = snakePos[snakeIndex][snakePos[snakeIndex].length - 1];
+    const snakeIndex = Math.floor(Math.random() * snakePos.length);
+    const currentSnake = snakePos[snakeIndex];
+    const headPos = currentSnake[currentSnake.length - 1];
     let playerDir = [false, false, false, false];
     if (playerPos[0] < headPos[0]) playerDir[0] = true;
     if (playerPos[1] > headPos[1]) playerDir[1] = true;
@@ -239,8 +240,8 @@ function moveSnakes() {
 
     let validPlayerDirs = [];
 
-    if (getValidPos(charPosNearby(headPos, playerChar)).length > 0) {
-        gameState = 2;
+    if (removeNulls(charPosNearby(headPos, playerChar)).length > 0) {
+        gameState = 2; //near player end game
     } else {
         let blankCharPosNearby = charPosNearby(headPos, blankChar);
         for (let i = 0; i < playerDir.length; i++) {
@@ -250,15 +251,45 @@ function moveSnakes() {
         }
 
         if (validPlayerDirs.length > 0) {
-            shiftSnake(snakePos[snakeIndex], getRandomElement(validPlayerDirs));
+            //move to blank towards player
+            shiftSnake(currentSnake, getRandomElement(validPlayerDirs));
         } else {
-            let validDirs = getValidPos(charPosNearby(headPos, blankChar));
-            if (validDirs.length > 0)
-                shiftSnake(snakePos[snakeIndex], getRandomElement(validDirs));
+            let validBlankDirs = removeNulls(charPosNearby(headPos, blankChar));
+            let validSnakeDirs = removeNulls(
+                charPosNearby(headPos, snakeTailChar)
+                    .filter((pos) => !currentSnake.includes(pos))
+                    .concat(charPosNearby(headPos, snakeHeadChar))
+            );
+
+            if (validSnakeDirs.length > 0 && Math.random() < 0.5) {
+                let bitePos = getRandomElement(validSnakeDirs);
+                biteSnake(snakeIndex, bitePos);
+                shiftSnake(currentSnake, bitePos);
+            } else if (validBlankDirs.length > 0)
+                //move to any blank
+                shiftSnake(currentSnake, getRandomElement(validBlankDirs));
         }
     }
     updateBoard();
     //}
+
+    function biteSnake(bitingSnakeIndex, pos) {
+        for (let snakeIndex = 0; snakeIndex < snakePos.length; snakeIndex++) {
+            if (snakeIndex !== bitingSnakeIndex) {
+                for (
+                    let snakePart = 0;
+                    snakePart < snakePos[snakeIndex].length;
+                    snakePart++
+                ) {
+                    if (
+                        snakePos[snakeIndex][snakePart][0] === pos[0] &&
+                        snakePos[snakeIndex][snakePart][1] === pos[1]
+                    )
+                        console.log(snakeIndex);
+                }
+            }
+        }
+    }
 
     function shiftSnake(snake, pos) {
         snake.push([pos[0], pos[1]]);
@@ -280,7 +311,7 @@ function spawnToken() {
 function elongateSnakes() {
     for (let snakeIndex = 0; snakeIndex < snakePos.length; snakeIndex++) {
         let tailPos = snakePos[snakeIndex][0];
-        let validDirs = getValidPos(charPosNearby(tailPos, blankChar));
+        let validDirs = removeNulls(charPosNearby(tailPos, blankChar));
 
         if (validDirs.length > 0)
             snakePos[snakeIndex].unshift(getRandomElement(validDirs));
@@ -297,12 +328,12 @@ function charPosNearby(pos, char) {
     return nearbyPos;
 }
 
-function getValidPos(nearbyPos) {
-    let validPos = [];
-    for (let i = 0; i < nearbyPos.length; i++) {
-        if (nearbyPos[i] !== null) validPos.push(nearbyPos[i]);
+function removeNulls(arr) {
+    let newArr = [];
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] !== null) newArr.push(arr[i]);
     }
-    return validPos;
+    return newArr;
 }
 
 function getRandomElement(arr) {
