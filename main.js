@@ -276,7 +276,24 @@ document.addEventListener("keydown", function (event) {
     if (event.key === "d") heldDir[1] = true;
     if (event.key === "s") heldDir[2] = true;
     if (event.key === "a") heldDir[3] = true;
+    if (event.key === "ArrowUp") {
+        event.preventDefault();
+        heldDir[0] = true;
+    }
+    if (event.key === "ArrowRight") {
+        event.preventDefault();
+        heldDir[1] = true;
+    }
+    if (event.key === "ArrowDown") {
+        event.preventDefault();
+        heldDir[2] = true;
+    }
+    if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        heldDir[3] = true;
+    }
     if (event.key === "r") document.getElementById("reset").click();
+    if (event.key === "0") document.getElementById("reset").click();
     if (event.key === "Escape") document.getElementById("start-stop").click();
 });
 document.addEventListener("keyup", function (event) {
@@ -284,6 +301,22 @@ document.addEventListener("keyup", function (event) {
     if (event.key === "d") heldDir[1] = false;
     if (event.key === "s") heldDir[2] = false;
     if (event.key === "a") heldDir[3] = false;
+    if (event.key === "ArrowUp") {
+        event.preventDefault();
+        heldDir[0] = false;
+    }
+    if (event.key === "ArrowRight") {
+        event.preventDefault();
+        heldDir[1] = false;
+    }
+    if (event.key === "ArrowDown") {
+        event.preventDefault();
+        heldDir[2] = false;
+    }
+    if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        heldDir[3] = false;
+    }
 });
 
 document
