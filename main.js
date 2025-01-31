@@ -54,16 +54,8 @@ drawBoard();
 
 function reset() {
     clearTimeout(tickTimer);
-
     gameState = 0;
     gameTick = 0;
-    rowSize = defaults.rowSize;
-    colSize = defaults.colSize;
-
-    playerPos = defaults.playerPos;
-    recentBites = [];
-    recentDeaths = [];
-    tokenPos = [];
 
     matchHistory.push([
         matchNum,
@@ -89,6 +81,14 @@ function reset() {
             match[4] +
             "<br>";
     });
+
+    rowSize = defaults.rowSize;
+    colSize = defaults.colSize;
+
+    playerPos = defaults.playerPos;
+    recentBites = [];
+    recentDeaths = [];
+    tokenPos = [];
 
     snakes = JSON.parse(defaults.snakePos);
     tokensCollected = 0;
