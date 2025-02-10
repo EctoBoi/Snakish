@@ -6,10 +6,12 @@ defaults.snakePos = JSON.stringify([
     [
         [defaults.colSize - 4, defaults.rowSize - 4],
         [defaults.colSize - 4, defaults.rowSize - 5],
+        [defaults.colSize - 4, defaults.rowSize - 6],
     ],
     [
         [3, defaults.rowSize - 4],
         [3, defaults.rowSize - 5],
+        [3, defaults.rowSize - 6],
     ],
 ]);
 
