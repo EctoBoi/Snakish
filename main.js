@@ -425,7 +425,7 @@ function moveSnakes() {
                             let newSnake = currentSnake.splice(0, snakePart);
                             currentSnake.splice(0, 1);
 
-                            if (currentSnake.length < 2) {
+                            if (currentSnake.length < 3) {
                                 //original snake too short, kill
                                 addRecentDeath(
                                     currentSnake[currentSnake.length - 1]
@@ -433,7 +433,7 @@ function moveSnakes() {
                                 snakeDeaths++;
                                 snakes.splice(snakeIndex, 1);
                             }
-                            if (newSnake.length > 1) {
+                            if (newSnake.length > 5) {
                                 // new snake
                                 snakes.push(newSnake.reverse());
                                 spawnedSnakes++;
